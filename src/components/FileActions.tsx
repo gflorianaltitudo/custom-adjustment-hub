@@ -25,7 +25,17 @@ const FileActions: React.FC<FileActionsProps> = ({ data, onDataLoad }) => {
     reader.onload = (e) => {
       try {
         const content = e.target?.result as string;
-        const parsedData = JSON.parse(content);
+        const jsonData = JSON.parse(content);
+        
+        // Handle both formats: with or without the "UpdateStrategies" wrapper
+        let parsedData: UpdateStrategies;
+        if (jsonData.UpdateStrategies) {
+          // Format: { "UpdateStrategies": { ... } }
+          parsedData = jsonData.UpdateStrategies;
+        } else {
+          // Format: { ... } (direct structure)
+          parsedData = jsonData;
+        }
         
         // Basic validation to ensure it's an UpdateStrategies object
         if (!parsedData.CustomRules || !Array.isArray(parsedData.CustomRules)) {
@@ -56,6 +66,8 @@ const FileActions: React.FC<FileActionsProps> = ({ data, onDataLoad }) => {
   };
 
   const handleDownload = () => {
+    // Create a consistent format for the downloaded file
+    // We'll use the direct structure without the wrapper
     const dataStr = JSON.stringify(data, null, 2);
     const blob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
