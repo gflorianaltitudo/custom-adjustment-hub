@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import PriceRuleEditor from '@/components/PriceRuleEditor';
+import FileActions from '@/components/FileActions';
 import { UpdateStrategies, defaultUpdateStrategies } from '@/utils/priceRules';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -30,6 +31,10 @@ const Index = () => {
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Configure how prices are adjusted based on market conditions and specific price ranges.
             </p>
+            
+            <div className="mt-6 flex justify-center">
+              <FileActions data={data} onDataLoad={setData} />
+            </div>
           </motion.div>
         </header>
 
