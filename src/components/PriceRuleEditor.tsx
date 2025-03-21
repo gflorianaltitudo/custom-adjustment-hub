@@ -6,18 +6,24 @@ import PriceAdjustmentToggle from './PriceAdjustmentToggle';
 import ConfirmDialog from './ConfirmDialog';
 import { CustomRule, UpdateStrategies, createNewRule } from '@/utils/priceRules';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Save, BarChart } from 'lucide-react';
+import { Save, BarChart, Edit, Check } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface PriceRuleEditorProps {
   initialData: UpdateStrategies;
   onSave: (data: UpdateStrategies) => void;
+  jwtToken: string;
+  onJWTUpdate: (token: string) => void;
 }
 
-const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave }) => {
+const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave, jwtToken, onJWTUpdate }) => {
   const [data, setData] = useState<UpdateStrategies>({ ...initialData });
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [isEditingJWT, setIsEditingJWT] = useState<boolean>(false);
+  const [tempJWT, setTempJWT] = useState<string>(jwtToken);
   
   const handleToggleCustomRules = (value: boolean) => {
     setData(prev => ({ ...prev, UseCustomRules: value }));
@@ -60,6 +66,17 @@ const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave }
     toast(`Strategy changed to ${value}`);
   };
 
+  const handleEditJWT = () => {
+    setIsEditingJWT(true);
+    setTempJWT(jwtToken);
+  };
+
+  const handleSaveJWT = () => {
+    onJWTUpdate(tempJWT);
+    setIsEditingJWT(false);
+    toast.success('JWT Token updated');
+  };
+
   const handleSave = () => {
     onSave(data);
     setIsConfirmDialogOpen(false);
@@ -70,6 +87,54 @@ const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave }
 
   return (
     <div className="w-full max-w-4xl mx-auto">
+      <div className="mb-8 bg-white/70 backdrop-blur-lg rounded-xl shadow-sm p-4">
+        <Label htmlFor="jwt-token" className="text-sm font-medium text-left mb-2">
+          JWT Token for API Authentication
+        </Label>
+        
+        {isEditingJWT ? (
+          <div className="flex flex-col gap-2">
+            <Input
+              id="jwt-token"
+              value={tempJWT}
+              onChange={(e) => setTempJWT(e.target.value)}
+              className="font-mono text-xs"
+            />
+            <div className="flex justify-end gap-2 mt-1">
+              <Button 
+                size="sm" 
+                variant="outline" 
+                onClick={() => setIsEditingJWT(false)}
+              >
+                Cancel
+              </Button>
+              <Button 
+                size="sm" 
+                onClick={handleSaveJWT}
+                className="flex items-center gap-1"
+              >
+                <Check className="h-4 w-4" />
+                Save
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <div className="flex-1 bg-gray-50 rounded border p-2 overflow-hidden text-ellipsis whitespace-nowrap text-xs font-mono text-left">
+              {jwtToken || "No JWT token set"}
+            </div>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              onClick={handleEditJWT}
+              className="flex-shrink-0"
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+      </div>
+      
       <PriceAdjustmentToggle 
         useCustomRules={data.UseCustomRules} 
         onChange={handleToggleCustomRules} 

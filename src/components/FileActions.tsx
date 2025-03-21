@@ -108,7 +108,7 @@ const FileActions: React.FC<FileActionsProps> = ({ data, onDataLoad, onExtractJW
   };
 
   const handleDownload = () => {
-    // Get the current JWT token from document if available
+    // Get the current JWT token by looking for the element in the DOM
     const jwtTokenElement = document.getElementById('jwt-token') as HTMLInputElement;
     const jwtToken = jwtTokenElement ? jwtTokenElement.value : "";
     
