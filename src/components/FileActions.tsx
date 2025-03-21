@@ -3,7 +3,7 @@ import React, { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Upload, Download, FileText, Save } from 'lucide-react';
 import { toast } from 'sonner';
-import { UpdateStrategies, defaultUpdateStrategies } from '@/utils/priceRules';
+import { UpdateStrategies, defaultUpdateStrategies, CustomRule } from '@/utils/priceRules';
 
 interface FileActionsProps {
   data: UpdateStrategies;
@@ -15,6 +15,20 @@ const FileActions: React.FC<FileActionsProps> = ({ data, onDataLoad }) => {
 
   const handleOpenFile = () => {
     fileInputRef.current?.click();
+  };
+
+  // Normalize property names from camelCase to PascalCase if needed
+  const normalizeCustomRule = (rule: any): CustomRule => {
+    return {
+      MinPriceRange: rule.MinPriceRange ?? rule.minPriceRange ?? 0,
+      MaxPriceRange: rule.MaxPriceRange ?? rule.maxPriceRange ?? 10,
+      PriceAdjustmentType: rule.PriceAdjustmentType ?? rule.priceAdjustmentType ?? 'LowestPriceIndex',
+      LowestPriceIndex: rule.LowestPriceIndex ?? rule.lowestPriceIndex,
+      AdjustmentPercentage: rule.AdjustmentPercentage ?? rule.adjustmentPercentage,
+      FixedAdjustment: rule.FixedAdjustment ?? rule.fixedAdjustment,
+      MinAllowedPrice: rule.MinAllowedPrice ?? rule.minAllowedPrice ?? 0.1,
+      TrimFraction: rule.TrimFraction ?? rule.trimFraction
+    };
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,6 +62,9 @@ const FileActions: React.FC<FileActionsProps> = ({ data, onDataLoad }) => {
           throw new Error('Invalid file format: CustomRules missing or not an array');
         }
         
+        // Normalize custom rules to handle camelCase vs PascalCase properties
+        parsedData.CustomRules = parsedData.CustomRules.map(normalizeCustomRule);
+        
         onDataLoad(parsedData);
         toast.success('File loaded successfully');
       } catch (error) {
@@ -67,7 +84,17 @@ const FileActions: React.FC<FileActionsProps> = ({ data, onDataLoad }) => {
   };
 
   const handleCreateNew = () => {
-    onDataLoad(defaultUpdateStrategies);
+    // Start with minimal structure when creating a new file
+    const minimalConfig: UpdateStrategies = {
+      UseCustomRules: true,
+      PriceAdjustmentStrategy: "Moderate",
+      PriceAdjustmentType: "LowestPriceIndex",
+      MarketAverage: "TrimmedMean",
+      CustomRules: [],
+      Strategies: defaultUpdateStrategies.Strategies
+    };
+    
+    onDataLoad(minimalConfig);
     toast.success('New configuration created');
   };
 
@@ -77,7 +104,11 @@ const FileActions: React.FC<FileActionsProps> = ({ data, onDataLoad }) => {
     const completeData = {
       UpdateStrategies: data,
       // Include empty placeholders for other sections to maintain the structure
-      ApiSettings: {},
+      ApiSettings: {
+        CardTrader: {
+          JWTToken: "" // Empty to be filled by the user
+        }
+      },
       Logging: {
         LogLevel: {
           Default: "Information"
