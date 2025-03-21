@@ -1,0 +1,77 @@
+{
+  "UpdateStrategies": {
+    "UseCustomRules": false,
+    "PriceAdjustmentStrategy": "Moderate",
+    "PriceAdjustmentType": "LowestPriceIndex",
+    "MarketAverage": "TrimmedMean",
+    "CustomRules": [
+      {
+        "MinPriceRange": 0,
+        "MaxPriceRange": 1,
+        "PriceAdjustmentType": "LowestPriceIndex",
+        "LowestPriceIndex": 2,
+        "MinAllowedPrice": 0.1
+      },
+      {
+        "MinPriceRange": 1,
+        "MaxPriceRange": 5,
+        "PriceAdjustmentType": "LowestPriceIndex",
+        "LowestPriceIndex": 3,
+        "MinAllowedPrice": 0.1
+      },
+      {
+        "MinPriceRange": 5,
+        "MaxPriceRange": 10,
+        "PriceAdjustmentType": "LowestPriceIndex",
+        "LowestPriceIndex": 1,
+        "AdjustmentPercentage": -0.1,
+        "MinAllowedPrice": 5
+      },
+      {
+        "MinPriceRange": 11,
+        "MaxPriceRange": 20,
+        "PriceAdjustmentType": "LowestPriceIndex",
+        "LowestPriceIndex": 1,
+        "MinAllowedPrice": 0.1
+      }
+    ],
+    "Strategies": {
+      "Aggressive": {
+        "TrimFraction": 0.05,
+        "MaxRetries": 3,
+        "RetryDelaySeconds": 1,
+        "LowestPriceIndex": 1,
+        "MarketAverage": "Median",
+        "PercentageAdjustment": -0.1,
+        "FixedAdjustment": 0
+      },
+      "Moderate": {
+        "TrimFraction": 0.1,
+        "MaxRetries": 5,
+        "RetryDelaySeconds": 2,
+        "LowestPriceIndex": 5,
+        "MarketAverage": "Median",
+        "PercentageAdjustment": 0,
+        "FixedAdjustment": 0
+      },
+      "Conservative": {
+        "TrimFraction": 0.2,
+        "MaxRetries": 7,
+        "RetryDelaySeconds": 3,
+        "MarketAverage": "Median",
+        "PercentageAdjustment": 0,
+        "FixedAdjustment": -0.5
+      }
+    }
+  },
+  "ApiSettings": {
+    "CardTrader": {
+      "JWTToken": ""
+    }
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information"
+    }
+  }
+}

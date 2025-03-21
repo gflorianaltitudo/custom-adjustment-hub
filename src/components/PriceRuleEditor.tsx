@@ -1,10 +1,11 @@
 
 import React, { useState } from 'react';
 import RuleCard from './RuleCard';
+import StrategyCard from './StrategyCard';
 import AddRuleButton from './AddRuleButton';
 import PriceAdjustmentToggle from './PriceAdjustmentToggle';
 import ConfirmDialog from './ConfirmDialog';
-import { CustomRule, UpdateStrategies, createNewRule } from '@/utils/priceRules';
+import { CustomRule, Strategy, UpdateStrategies, createNewRule } from '@/utils/priceRules';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,6 +25,7 @@ const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave, 
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [isEditingJWT, setIsEditingJWT] = useState<boolean>(false);
   const [tempJWT, setTempJWT] = useState<string>(jwtToken);
+const [editingStrategy, setEditingStrategy] = useState<string | null>(null);
   
   const handleToggleCustomRules = (value: boolean) => {
     setData(prev => ({ ...prev, UseCustomRules: value }));
@@ -46,6 +48,20 @@ const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave, 
       ...prev,
       CustomRules: newRules
     }));
+  };
+
+  const handleUpdateStrategy = (strategyName: string, updatedStrategy: Strategy) => {
+    setData(prev => ({
+      ...prev,
+      Strategies: {
+        ...prev.Strategies,
+        [strategyName]: updatedStrategy
+      }
+    }));
+  };
+
+  const handleStrategyEditChange = (strategyName: string, isEditing: boolean) => {
+    setEditingStrategy(isEditing ? strategyName : null);
   };
 
   const handleDeleteRule = (index: number) => {
@@ -160,6 +176,28 @@ const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave, 
             </SelectContent>
           </Select>
         </div>
+      </div>
+
+      <div className="mb-8">
+        {editingStrategy === data.PriceAdjustmentStrategy && (
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-semibold tracking-tight">Strategy Settings</h2>
+            <span className="text-sm text-muted-foreground">
+              Edit predefined strategies
+            </span>
+          </div>
+        )}
+        
+        {Object.entries(data.Strategies).map(([strategyName, strategy]) => (
+          <StrategyCard
+            key={strategyName}
+            strategyName={strategyName}
+            strategy={strategy}
+            onUpdate={(updatedStrategy) => handleUpdateStrategy(strategyName, updatedStrategy)}
+            onEditChange={(isEditing) => handleStrategyEditChange(strategyName, isEditing)}
+isDefaultStrategy={true}
+          />
+        ))}
       </div>
 
       <div className={`space-y-4 transition-all duration-300 ${data.UseCustomRules ? 'opacity-100' : 'opacity-50 pointer-events-none'}`}>

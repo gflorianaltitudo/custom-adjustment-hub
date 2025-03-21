@@ -18,7 +18,6 @@ interface RuleCardProps {
 const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate, onDelete, index }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedRule, setEditedRule] = useState<CustomRule>({ ...rule });
-  const [isExpanded, setIsExpanded] = useState(false);
 
   const handleSave = () => {
     if (editedRule.MinPriceRange >= editedRule.MaxPriceRange) {
@@ -70,14 +69,6 @@ const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate, onDelete, index }) 
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsExpanded(!isExpanded)}
-                  className="rounded-full h-8 w-8 text-gray-500 hover:text-primary hover:bg-primary/10 transition-all"
-                >
-                  <ChevronDown className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
-                </Button>
               </>
             ) : (
               <>
@@ -108,7 +99,7 @@ const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate, onDelete, index }) 
           </p>
         )}
 
-        {(isEditing || isExpanded) && (
+{isEditing && (
           <div className={`mt-4 grid gap-4 ${isEditing ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'} animate-fade-in`}>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -156,11 +147,12 @@ const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate, onDelete, index }) 
                   <SelectTrigger className="h-10">
                     <SelectValue placeholder="Select adjustment type" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="LowestPriceIndex">Lowest Price Index</SelectItem>
-                    <SelectItem value="PercentageAdjustment">Percentage Adjustment</SelectItem>
+                    <SelectContent>
+                      <SelectItem value="LowestPriceIndex">Lowest Price Index</SelectItem>
+                      <SelectItem value="PercentageAdjustment">Percentage Adjustment</SelectItem>
                     <SelectItem value="FixedAdjustment">Fixed Adjustment</SelectItem>
-                  </SelectContent>
+                    <SelectItem value="MarketAverageMethod">Market Average Method</SelectItem>
+                    </SelectContent>
                 </Select>
               </div>
             </div>

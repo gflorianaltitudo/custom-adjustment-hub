@@ -44,14 +44,14 @@ export const defaultUpdateStrategies: UpdateStrategies = {
       MaxPriceRange: 1,
       PriceAdjustmentType: "LowestPriceIndex",
       LowestPriceIndex: 2,
-      MinAllowedPrice: 0.1
+      MinAllowedPrice: 0.1,
     },
     {
       MinPriceRange: 1,
       MaxPriceRange: 5,
       PriceAdjustmentType: "LowestPriceIndex",
       LowestPriceIndex: 3,
-      MinAllowedPrice: 0.1
+      MinAllowedPrice: 0.1,
     },
     {
       MinPriceRange: 5,
@@ -59,7 +59,7 @@ export const defaultUpdateStrategies: UpdateStrategies = {
       PriceAdjustmentType: "LowestPriceIndex",
       AdjustmentPercentage: -0.1,
       LowestPriceIndex: 1,
-      MinAllowedPrice: 5
+      MinAllowedPrice: 5,
     },
     {
       MinPriceRange: 10,
@@ -68,7 +68,7 @@ export const defaultUpdateStrategies: UpdateStrategies = {
       AdjustmentPercentage: -0.1,
       MinAllowedPrice: 10,
       LowestPriceIndex: 2,
-      TrimFraction: 0.1
+      TrimFraction: 0.1,
     }
   ],
   Strategies: {
