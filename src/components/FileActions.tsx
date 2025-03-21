@@ -101,18 +101,25 @@ const FileActions: React.FC<FileActionsProps> = ({ data, onDataLoad, onExtractJW
     };
     
     onDataLoad(minimalConfig);
+    if (onExtractJWT) {
+      onExtractJWT("");
+    }
     toast.success('New configuration created');
   };
 
   const handleDownload = () => {
+    // Get the current JWT token from document if available
+    const jwtTokenElement = document.getElementById('jwt-token') as HTMLInputElement;
+    const jwtToken = jwtTokenElement ? jwtTokenElement.value : "";
+    
     // Create a file with the same complex structure, but only with our UpdateStrategies data
     // This preserves the overall structure while updating only our part
     const completeData = {
       UpdateStrategies: data,
-      // Include empty placeholders for other sections to maintain the structure
+      // Include ApiSettings with the JWT token
       ApiSettings: {
         CardTrader: {
-          JWTToken: "" // Empty to be filled by the user
+          JWTToken: jwtToken
         }
       },
       Logging: {
