@@ -16,7 +16,7 @@ const Index = () => {
 
   const handleExtractJWT = (token: string) => {
     setJwtToken(token);
-    console.log('JWT Token extracted');
+    console.log('JWT Token extracted:', token);
   };
 
   return (
@@ -39,7 +39,11 @@ const Index = () => {
             </p>
             
             <div className="mt-6 flex justify-center">
-              <FileActions data={data || defaultUpdateStrategies} onDataLoad={setData} onExtractJWT={handleExtractJWT} />
+              <FileActions 
+                data={data || defaultUpdateStrategies} 
+                onDataLoad={setData} 
+                onExtractJWT={handleExtractJWT}
+              />
             </div>
 
             {jwtToken && (

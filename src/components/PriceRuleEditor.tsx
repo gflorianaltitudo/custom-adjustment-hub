@@ -84,9 +84,8 @@ const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave }
           <Select 
             value={data.PriceAdjustmentStrategy}
             onValueChange={handleStrategyChange}
-            disabled={data.UseCustomRules}
           >
-            <SelectTrigger className={`transition-all ${!data.UseCustomRules ? 'border-primary/30' : ''}`}>
+            <SelectTrigger className="transition-all">
               <SelectValue placeholder="Select strategy" />
             </SelectTrigger>
             <SelectContent>
