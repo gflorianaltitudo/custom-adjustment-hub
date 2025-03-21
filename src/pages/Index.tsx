@@ -6,11 +6,17 @@ import { UpdateStrategies, defaultUpdateStrategies } from '@/utils/priceRules';
 import { AnimatePresence, motion } from 'framer-motion';
 
 const Index = () => {
-  const [data, setData] = useState<UpdateStrategies>(defaultUpdateStrategies);
+  const [data, setData] = useState<UpdateStrategies | null>(null);
+  const [jwtToken, setJwtToken] = useState<string>("");
 
   const handleSave = (updatedData: UpdateStrategies) => {
     setData(updatedData);
     console.log('Saved data:', JSON.stringify(updatedData, null, 2));
+  };
+
+  const handleExtractJWT = (token: string) => {
+    setJwtToken(token);
+    console.log('JWT Token extracted');
   };
 
   return (
@@ -33,19 +39,39 @@ const Index = () => {
             </p>
             
             <div className="mt-6 flex justify-center">
-              <FileActions data={data} onDataLoad={setData} />
+              <FileActions data={data || defaultUpdateStrategies} onDataLoad={setData} onExtractJWT={handleExtractJWT} />
             </div>
+
+            {jwtToken && (
+              <div className="mt-4 text-sm text-muted-foreground">
+                <span className="font-semibold">JWT Token:</span> {jwtToken.slice(0, 20)}...
+              </div>
+            )}
           </motion.div>
         </header>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="bg-white/70 backdrop-blur-lg rounded-2xl shadow-apple p-6 sm:p-8"
-        >
-          <PriceRuleEditor initialData={data} onSave={handleSave} />
-        </motion.div>
+        {data && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="bg-white/70 backdrop-blur-lg rounded-2xl shadow-apple p-6 sm:p-8"
+          >
+            <PriceRuleEditor initialData={data} onSave={handleSave} />
+          </motion.div>
+        )}
+
+        {!data && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-16"
+          >
+            <p className="text-muted-foreground">
+              Please open an existing configuration file or create a new one to start editing.
+            </p>
+          </motion.div>
+        )}
       </div>
     </div>
   );

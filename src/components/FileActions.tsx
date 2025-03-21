@@ -8,9 +8,10 @@ import { UpdateStrategies, defaultUpdateStrategies, CustomRule } from '@/utils/p
 interface FileActionsProps {
   data: UpdateStrategies;
   onDataLoad: (data: UpdateStrategies) => void;
+  onExtractJWT?: (token: string) => void;
 }
 
-const FileActions: React.FC<FileActionsProps> = ({ data, onDataLoad }) => {
+const FileActions: React.FC<FileActionsProps> = ({ data, onDataLoad, onExtractJWT }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleOpenFile = () => {
@@ -50,6 +51,11 @@ const FileActions: React.FC<FileActionsProps> = ({ data, onDataLoad }) => {
         if (jsonData.UpdateStrategies) {
           // Either complex or simple structure with UpdateStrategies key
           parsedData = jsonData.UpdateStrategies;
+          
+          // Extract JWT token if available and callback is provided
+          if (onExtractJWT && jsonData.ApiSettings?.CardTrader?.JWTToken) {
+            onExtractJWT(jsonData.ApiSettings.CardTrader.JWTToken);
+          }
         } else if (jsonData.UseCustomRules !== undefined && jsonData.CustomRules) {
           // Direct structure (contains UpdateStrategies properties directly)
           parsedData = jsonData;
