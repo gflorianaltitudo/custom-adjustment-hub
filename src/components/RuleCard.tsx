@@ -22,7 +22,7 @@ const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate, onDelete, index }) 
   // Ensure MarketAverage always has a value when component mounts or rule changes
   useEffect(() => {
     if (!rule.MarketAverage) {
-      const updatedRule = { ...rule, MarketAverage: 'TrimmedMean' };
+      const updatedRule = { ...rule, MarketAverage: 'TrimmedMean' as const };
       console.log("Setting default MarketAverage in rule:", updatedRule);
       onUpdate(updatedRule);
     }

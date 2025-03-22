@@ -1,4 +1,3 @@
-
 export interface CustomRule {
   MinPriceRange: number;
   MaxPriceRange: number;
