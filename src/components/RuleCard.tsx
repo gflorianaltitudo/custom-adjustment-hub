@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CustomRule, generateRuleDescription } from '@/utils/priceRules';
-import { Trash2, Edit2, Save, X, ChevronDown } from 'lucide-react';
+import { Trash2, Edit2, Save, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface RuleCardProps {
@@ -18,17 +18,25 @@ const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate, onDelete, index }) 
   const [isEditing, setIsEditing] = useState(false);
   const [editedRule, setEditedRule] = useState<CustomRule>({ ...rule });
 
+  useEffect(() => {
+    if (!editedRule.MarketAverage) {
+      setEditedRule(prev => ({ ...prev, MarketAverage: rule.MarketAverage || 'TrimmedMean' }));
+    }
+  }, [rule, editedRule.MarketAverage]);
+
   const handleSave = () => {
     if (editedRule.MinPriceRange >= editedRule.MaxPriceRange) {
       toast.error('Min price must be less than max price');
       return;
     }
     
-    if (!editedRule.MarketAverage) {
-      editedRule.MarketAverage = 'TrimmedMean';
-    }
+    const finalRule = {
+      ...editedRule,
+      MarketAverage: editedRule.MarketAverage || 'TrimmedMean'
+    };
     
-    onUpdate(editedRule);
+    console.log('Saving rule with MarketAverage:', finalRule.MarketAverage);
+    onUpdate(finalRule);
     setIsEditing(false);
     toast.success('Rule updated successfully');
   };
@@ -39,9 +47,8 @@ const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate, onDelete, index }) 
   };
 
   const handleChange = (field: keyof CustomRule, value: any) => {
+    console.log(`Changing ${field} to:`, value);
     setEditedRule(prev => ({ ...prev, [field]: value }));
-    
-    console.log(`Updated ${field} to:`, value);
   };
 
   return (

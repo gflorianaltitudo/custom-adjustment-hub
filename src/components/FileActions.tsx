@@ -1,6 +1,7 @@
+
 import React, { useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Upload, Download, FileText, Save } from 'lucide-react';
+import { Upload, Download, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { UpdateStrategies, defaultUpdateStrategies, CustomRule } from '@/utils/priceRules';
 
@@ -19,6 +20,9 @@ const FileActions: React.FC<FileActionsProps> = ({ data, onDataLoad, onExtractJW
 
   // Normalize property names from camelCase to PascalCase if needed
   const normalizeCustomRule = (rule: any): CustomRule => {
+    // Ensure MarketAverage always has a value
+    const marketAverage = rule.MarketAverage || rule.marketAverage || 'TrimmedMean';
+    
     const normalizedRule: CustomRule = {
       MinPriceRange: rule.MinPriceRange ?? rule.minPriceRange ?? 0,
       MaxPriceRange: rule.MaxPriceRange ?? rule.maxPriceRange ?? 10,
@@ -28,11 +32,10 @@ const FileActions: React.FC<FileActionsProps> = ({ data, onDataLoad, onExtractJW
       FixedAdjustment: rule.FixedAdjustment ?? rule.fixedAdjustment,
       MinAllowedPrice: rule.MinAllowedPrice ?? rule.minAllowedPrice ?? 0.1,
       TrimFraction: rule.TrimFraction ?? rule.trimFraction,
-      MarketAverage: rule.MarketAverage ?? rule.marketAverage ?? 'TrimmedMean'
+      MarketAverage: marketAverage
     };
     
-    // Debugging log
-    console.log("Normalized rule:", normalizedRule);
+    console.log("Normalized rule with MarketAverage:", normalizedRule.MarketAverage);
     
     return normalizedRule;
   };

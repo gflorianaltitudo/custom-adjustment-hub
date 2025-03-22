@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import RuleCard from './RuleCard';
 import StrategyCard from './StrategyCard';
 import AddRuleButton from './AddRuleButton';
@@ -25,8 +24,8 @@ const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave, 
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [isEditingJWT, setIsEditingJWT] = useState<boolean>(false);
   const [tempJWT, setTempJWT] = useState<string>(jwtToken);
-const [editingStrategy, setEditingStrategy] = useState<string | null>(null);
-  
+  const [editingStrategy, setEditingStrategy] = useState<string | null>(null);
+
   const handleToggleCustomRules = (value: boolean) => {
     setData(prev => ({ ...prev, UseCustomRules: value }));
     toast(value ? 'Custom rules enabled' : 'Custom rules disabled');
@@ -41,7 +40,24 @@ const [editingStrategy, setEditingStrategy] = useState<string | null>(null);
     toast.success('New rule added');
   };
 
+  useEffect(() => {
+    if (data.CustomRules.some(rule => !rule.MarketAverage)) {
+      const updatedRules = data.CustomRules.map(rule => ({
+        ...rule,
+        MarketAverage: rule.MarketAverage || 'TrimmedMean'
+      }));
+      
+      setData(prev => ({
+        ...prev,
+        CustomRules: updatedRules
+      }));
+      
+      console.log("Fixed missing MarketAverage values in rules");
+    }
+  }, [data.CustomRules]);
+
   const handleUpdateRule = (index: number, updatedRule: CustomRule) => {
+    console.log("Updating rule at index", index, "with MarketAverage:", updatedRule.MarketAverage);
     const newRules = [...data.CustomRules];
     newRules[index] = updatedRule;
     setData(prev => ({
@@ -94,7 +110,16 @@ const [editingStrategy, setEditingStrategy] = useState<string | null>(null);
   };
 
   const handleSave = () => {
-    onSave(data);
+    const validatedData = {
+      ...data,
+      CustomRules: data.CustomRules.map(rule => ({
+        ...rule,
+        MarketAverage: rule.MarketAverage || 'TrimmedMean'
+      }))
+    };
+    
+    console.log("Saving data with validated MarketAverage values:", validatedData);
+    onSave(validatedData);
     setIsConfirmDialogOpen(false);
     toast.success('Settings saved successfully', {
       description: 'Your price adjustment rules have been updated.'
@@ -195,7 +220,7 @@ const [editingStrategy, setEditingStrategy] = useState<string | null>(null);
             strategy={strategy}
             onUpdate={(updatedStrategy) => handleUpdateStrategy(strategyName, updatedStrategy)}
             onEditChange={(isEditing) => handleStrategyEditChange(strategyName, isEditing)}
-isDefaultStrategy={true}
+            isDefaultStrategy={true}
           />
         ))}
       </div>
