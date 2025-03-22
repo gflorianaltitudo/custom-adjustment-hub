@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -24,6 +23,11 @@ const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate, onDelete, index }) 
       toast.error('Min price must be less than max price');
       return;
     }
+    
+    if (!editedRule.MarketAverage) {
+      editedRule.MarketAverage = 'TrimmedMean';
+    }
+    
     onUpdate(editedRule);
     setIsEditing(false);
     toast.success('Rule updated successfully');
@@ -36,6 +40,8 @@ const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate, onDelete, index }) 
 
   const handleChange = (field: keyof CustomRule, value: any) => {
     setEditedRule(prev => ({ ...prev, [field]: value }));
+    
+    console.log(`Updated ${field} to:`, value);
   };
 
   return (
@@ -162,7 +168,7 @@ const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate, onDelete, index }) 
                 </label>
                 <Select
                   disabled={!isEditing}
-                  value={editedRule.MarketAverage || 'Mean'}
+                  value={editedRule.MarketAverage || 'TrimmedMean'}
                   onValueChange={(value) => handleChange('MarketAverage', value)}
                 >
                   <SelectTrigger className="h-10">

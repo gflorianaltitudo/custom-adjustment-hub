@@ -7,7 +7,7 @@ export interface CustomRule {
   FixedAdjustment?: number;
   MinAllowedPrice: number;
   TrimFraction?: number;
-  MarketAverage?: 'Mean' | 'Median' | 'TrimmedMean';
+  MarketAverage: 'Mean' | 'Median' | 'TrimmedMean';
 }
 
 export interface Strategy {
@@ -149,5 +149,5 @@ export const createNewRule = (): CustomRule => ({
   PriceAdjustmentType: 'LowestPriceIndex',
   LowestPriceIndex: 1,
   MinAllowedPrice: 0.1,
-  MarketAverage: 'Mean'
+  MarketAverage: 'TrimmedMean'
 });

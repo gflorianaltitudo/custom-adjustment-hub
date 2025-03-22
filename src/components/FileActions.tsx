@@ -1,4 +1,3 @@
-
 import React, { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Upload, Download, FileText, Save } from 'lucide-react';
@@ -20,7 +19,7 @@ const FileActions: React.FC<FileActionsProps> = ({ data, onDataLoad, onExtractJW
 
   // Normalize property names from camelCase to PascalCase if needed
   const normalizeCustomRule = (rule: any): CustomRule => {
-    return {
+    const normalizedRule: CustomRule = {
       MinPriceRange: rule.MinPriceRange ?? rule.minPriceRange ?? 0,
       MaxPriceRange: rule.MaxPriceRange ?? rule.maxPriceRange ?? 10,
       PriceAdjustmentType: rule.PriceAdjustmentType ?? rule.priceAdjustmentType ?? 'LowestPriceIndex',
@@ -28,8 +27,14 @@ const FileActions: React.FC<FileActionsProps> = ({ data, onDataLoad, onExtractJW
       AdjustmentPercentage: rule.AdjustmentPercentage ?? rule.adjustmentPercentage,
       FixedAdjustment: rule.FixedAdjustment ?? rule.fixedAdjustment,
       MinAllowedPrice: rule.MinAllowedPrice ?? rule.minAllowedPrice ?? 0.1,
-      TrimFraction: rule.TrimFraction ?? rule.trimFraction
+      TrimFraction: rule.TrimFraction ?? rule.trimFraction,
+      MarketAverage: rule.MarketAverage ?? rule.marketAverage ?? 'TrimmedMean'
     };
+    
+    // Debugging log
+    console.log("Normalized rule:", normalizedRule);
+    
+    return normalizedRule;
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
