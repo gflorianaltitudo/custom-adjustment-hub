@@ -132,16 +132,18 @@ const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave, 
   };
 
   const handleSave = () => {
-    // Final validation before saving to ensure all rules have MarketAverage
+    // Important - we'll save the data as is, without forcing TrimmedMean
+    // We just need to make sure there's a value where it's missing
     const validatedData = {
       ...data,
       CustomRules: data.CustomRules.map(rule => ({
         ...rule,
+        // Only set TrimmedMean if MarketAverage is completely missing
         MarketAverage: rule.MarketAverage || 'TrimmedMean'
       }))
     };
     
-    console.log("Saving data with validated MarketAverage values:", validatedData);
+    console.log("Saving data with MarketAverage values preserved:", validatedData);
     onSave(validatedData);
     setIsConfirmDialogOpen(false);
     toast.success('Settings saved successfully', {

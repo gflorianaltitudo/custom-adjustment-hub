@@ -39,7 +39,7 @@ const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate, onDelete, index }) 
       return;
     }
     
-    // Explicitly ensure MarketAverage is set before saving
+    // Explicitly ensure MarketAverage is set before saving but preserve the selected value
     const finalRule = {
       ...editedRule,
       MarketAverage: editedRule.MarketAverage || 'TrimmedMean'
