@@ -1,13 +1,13 @@
-
 export interface CustomRule {
   MinPriceRange: number;
   MaxPriceRange: number;
-  PriceAdjustmentType: 'LowestPriceIndex' | 'PercentageAdjustment' | 'FixedAdjustment';
+  PriceAdjustmentType: 'LowestPriceIndex' | 'PercentageAdjustment' | 'FixedAdjustment' | 'MarketAverageMethod';
   LowestPriceIndex?: number;
   AdjustmentPercentage?: number;
   FixedAdjustment?: number;
   MinAllowedPrice: number;
   TrimFraction?: number;
+  MarketAverage?: 'Mean' | 'Median' | 'TrimmedMean';
 }
 
 export interface Strategy {
@@ -45,6 +45,7 @@ export const defaultUpdateStrategies: UpdateStrategies = {
       PriceAdjustmentType: "LowestPriceIndex",
       LowestPriceIndex: 2,
       MinAllowedPrice: 0.1,
+      MarketAverage: "Median"
     },
     {
       MinPriceRange: 1,
@@ -52,6 +53,7 @@ export const defaultUpdateStrategies: UpdateStrategies = {
       PriceAdjustmentType: "LowestPriceIndex",
       LowestPriceIndex: 3,
       MinAllowedPrice: 0.1,
+      MarketAverage: "Mean"
     },
     {
       MinPriceRange: 5,
@@ -60,6 +62,7 @@ export const defaultUpdateStrategies: UpdateStrategies = {
       AdjustmentPercentage: -0.1,
       LowestPriceIndex: 1,
       MinAllowedPrice: 5,
+      MarketAverage: "TrimmedMean"
     },
     {
       MinPriceRange: 10,
@@ -69,6 +72,7 @@ export const defaultUpdateStrategies: UpdateStrategies = {
       MinAllowedPrice: 10,
       LowestPriceIndex: 2,
       TrimFraction: 0.1,
+      MarketAverage: "TrimmedMean"
     }
   ],
   Strategies: {
@@ -119,6 +123,12 @@ export const generateRuleDescription = (rule: CustomRule): string => {
     const adjustmentDirection = rule.FixedAdjustment < 0 ? 'decreased' : 'increased';
     const amount = Math.abs(rule.FixedAdjustment);
     description += `be ${adjustmentDirection} by ${amount}€ from the market average. `;
+  } else if (rule.PriceAdjustmentType === 'MarketAverageMethod') {
+    description += `be set to the market average. `;
+  }
+  
+  if (rule.MarketAverage) {
+    description += `The market average is calculated using the ${rule.MarketAverage} method. `;
   }
 
   description += `The price will never be less than ${rule.MinAllowedPrice}€.`;
@@ -138,5 +148,6 @@ export const createNewRule = (): CustomRule => ({
   MaxPriceRange: 10,
   PriceAdjustmentType: 'LowestPriceIndex',
   LowestPriceIndex: 1,
-  MinAllowedPrice: 0.1
+  MinAllowedPrice: 0.1,
+  MarketAverage: 'Mean'
 });

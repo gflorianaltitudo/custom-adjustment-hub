@@ -99,7 +99,7 @@ const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate, onDelete, index }) 
           </p>
         )}
 
-{isEditing && (
+        {isEditing && (
           <div className={`mt-4 grid gap-4 ${isEditing ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'} animate-fade-in`}>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -147,12 +147,32 @@ const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate, onDelete, index }) 
                   <SelectTrigger className="h-10">
                     <SelectValue placeholder="Select adjustment type" />
                   </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="LowestPriceIndex">Lowest Price Index</SelectItem>
-                      <SelectItem value="PercentageAdjustment">Percentage Adjustment</SelectItem>
+                  <SelectContent>
+                    <SelectItem value="LowestPriceIndex">Lowest Price Index</SelectItem>
+                    <SelectItem value="PercentageAdjustment">Percentage Adjustment</SelectItem>
                     <SelectItem value="FixedAdjustment">Fixed Adjustment</SelectItem>
                     <SelectItem value="MarketAverageMethod">Market Average Method</SelectItem>
-                    </SelectContent>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label htmlFor={`market-average-${index}`} className="text-sm font-medium mb-1 block">
+                  Market Average Method
+                </label>
+                <Select
+                  disabled={!isEditing}
+                  value={editedRule.MarketAverage || 'Mean'}
+                  onValueChange={(value) => handleChange('MarketAverage', value)}
+                >
+                  <SelectTrigger className="h-10">
+                    <SelectValue placeholder="Select market average method" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Mean">Mean</SelectItem>
+                    <SelectItem value="Median">Median</SelectItem>
+                    <SelectItem value="TrimmedMean">Trimmed Mean</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
             </div>
@@ -212,6 +232,28 @@ const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate, onDelete, index }) 
                   />
                   <span className="text-xs text-muted-foreground mt-1 block">
                     Negative for discount, positive for markup
+                  </span>
+                </div>
+              )}
+
+              {editedRule.PriceAdjustmentType === 'MarketAverageMethod' && editedRule.MarketAverage === 'TrimmedMean' && (
+                <div>
+                  <label htmlFor={`trim-fraction-${index}`} className="text-sm font-medium mb-1 block">
+                    Trim Fraction
+                  </label>
+                  <Input
+                    id={`trim-fraction-${index}`}
+                    type="number"
+                    value={editedRule.TrimFraction || 0.1}
+                    onChange={(e) => handleChange('TrimFraction', parseFloat(e.target.value))}
+                    disabled={!isEditing}
+                    step="0.01"
+                    min="0"
+                    max="0.5"
+                    className="h-10"
+                  />
+                  <span className="text-xs text-muted-foreground mt-1 block">
+                    Fraction of values to trim from each end (0-0.5)
                   </span>
                 </div>
               )}
