@@ -20,8 +20,9 @@ const FileActions: React.FC<FileActionsProps> = ({ data, onDataLoad, onExtractJW
 
   // Normalize property names from camelCase to PascalCase if needed
   const normalizeCustomRule = (rule: any): CustomRule => {
-    // Ensure MarketAverage always has a value
+    // Always set a default value for MarketAverage if not present
     const marketAverage = rule.MarketAverage || rule.marketAverage || 'TrimmedMean';
+    console.log("Normalizing MarketAverage:", marketAverage);
     
     const normalizedRule: CustomRule = {
       MinPriceRange: rule.MinPriceRange ?? rule.minPriceRange ?? 0,

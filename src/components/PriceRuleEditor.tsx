@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import RuleCard from './RuleCard';
 import StrategyCard from './StrategyCard';
@@ -20,7 +21,19 @@ interface PriceRuleEditorProps {
 }
 
 const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave, jwtToken, onJWTUpdate }) => {
-  const [data, setData] = useState<UpdateStrategies>({ ...initialData });
+  // Initialize with deep copy to avoid direct mutations of initialData
+  const [data, setData] = useState<UpdateStrategies>(() => {
+    // Ensure all custom rules have a MarketAverage value on initial load
+    const validatedInitialData = {
+      ...initialData,
+      CustomRules: initialData.CustomRules.map(rule => ({
+        ...rule,
+        MarketAverage: rule.MarketAverage || 'TrimmedMean'
+      }))
+    };
+    return validatedInitialData;
+  });
+  
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [isEditingJWT, setIsEditingJWT] = useState<boolean>(false);
   const [tempJWT, setTempJWT] = useState<string>(jwtToken);
@@ -40,6 +53,7 @@ const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave, 
     toast.success('New rule added');
   };
 
+  // Ensure MarketAverage is consistently set
   useEffect(() => {
     if (data.CustomRules.some(rule => !rule.MarketAverage)) {
       const updatedRules = data.CustomRules.map(rule => ({
@@ -57,9 +71,17 @@ const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave, 
   }, [data.CustomRules]);
 
   const handleUpdateRule = (index: number, updatedRule: CustomRule) => {
-    console.log("Updating rule at index", index, "with MarketAverage:", updatedRule.MarketAverage);
+    // Ensure MarketAverage is explicitly set before updating
+    const validatedRule = {
+      ...updatedRule,
+      MarketAverage: updatedRule.MarketAverage || 'TrimmedMean'
+    };
+    
+    console.log("Updating rule at index", index, "with MarketAverage:", validatedRule.MarketAverage);
+    
     const newRules = [...data.CustomRules];
-    newRules[index] = updatedRule;
+    newRules[index] = validatedRule;
+    
     setData(prev => ({
       ...prev,
       CustomRules: newRules
@@ -110,6 +132,7 @@ const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave, 
   };
 
   const handleSave = () => {
+    // Final validation before saving to ensure all rules have MarketAverage
     const validatedData = {
       ...data,
       CustomRules: data.CustomRules.map(rule => ({
