@@ -151,7 +151,7 @@ export const createNewRule = (): CustomRule => {
     PriceAdjustmentType: 'LowestPriceIndex',
     LowestPriceIndex: 1,
     MinAllowedPrice: 0.1,
-    MarketAverage: 'TrimmedMean'
+    MarketAverage: 'Mean' // Change the default to Mean instead of TrimmedMean
   };
   
   console.log("Created new rule with MarketAverage:", newRule.MarketAverage);

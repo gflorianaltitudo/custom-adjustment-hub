@@ -1,3 +1,4 @@
+
 import React, { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Upload, Download, FileText } from 'lucide-react';
@@ -18,13 +19,16 @@ const FileActions: React.FC<FileActionsProps> = ({ data, onDataLoad, onExtractJW
   };
 
   const normalizeCustomRule = (rule: any): CustomRule => {
-    let marketAverage = rule.MarketAverage || rule.marketAverage;
-    console.log("Original MarketAverage in file:", marketAverage);
+    let marketAverage: 'Mean' | 'Median' | 'TrimmedMean' = 'Mean';
     
-    if (marketAverage === undefined) {
-      marketAverage = 'TrimmedMean';
-      console.log("No MarketAverage found, defaulting to:", marketAverage);
+    // Safely determine the MarketAverage value while maintaining the exact user selection
+    if (rule.MarketAverage === 'Mean' || rule.MarketAverage === 'Median' || rule.MarketAverage === 'TrimmedMean') {
+      marketAverage = rule.MarketAverage;
+    } else if (rule.marketAverage === 'Mean' || rule.marketAverage === 'Median' || rule.marketAverage === 'TrimmedMean') {
+      marketAverage = rule.marketAverage;
     }
+    
+    console.log("[FileActions] normalizeCustomRule - Original MarketAverage:", rule.MarketAverage || rule.marketAverage, "normalized to:", marketAverage);
     
     const normalizedRule: CustomRule = {
       MinPriceRange: rule.MinPriceRange ?? rule.minPriceRange ?? 0,
@@ -38,7 +42,6 @@ const FileActions: React.FC<FileActionsProps> = ({ data, onDataLoad, onExtractJW
       MarketAverage: marketAverage
     };
     
-    console.log("Normalized rule MarketAverage:", normalizedRule.MarketAverage);
     return normalizedRule;
   };
 
@@ -71,8 +74,9 @@ const FileActions: React.FC<FileActionsProps> = ({ data, onDataLoad, onExtractJW
         }
         
         parsedData.CustomRules = parsedData.CustomRules.map(normalizeCustomRule);
-        console.log("Loaded CustomRules with MarketAverage values:", 
-          parsedData.CustomRules.map(r => r.MarketAverage));
+        
+        console.log("[FileActions] Loaded file with CustomRules MarketAverage values:", 
+          parsedData.CustomRules.map((r, i) => `Rule ${i}: ${r.MarketAverage}`));
         
         onDataLoad(parsedData);
         toast.success('File loaded successfully');
@@ -112,10 +116,16 @@ const FileActions: React.FC<FileActionsProps> = ({ data, onDataLoad, onExtractJW
     const jwtTokenElement = document.getElementById('jwt-token') as HTMLInputElement;
     const jwtToken = jwtTokenElement ? jwtTokenElement.value : "";
     
+    // Create a deep copy to avoid reference issues
     const dataToDownload = JSON.parse(JSON.stringify(data));
     
-    console.log("Download - Original MarketAverage values:", 
-      dataToDownload.CustomRules.map(r => r.MarketAverage));
+    console.log("[FileActions] Download - Original MarketAverage values:", 
+      dataToDownload.CustomRules.map((r: CustomRule, i: number) => `Rule ${i}: ${r.MarketAverage}`));
+    
+    // Ensure each rule's MarketAverage is kept as the actual selected value
+    dataToDownload.CustomRules.forEach((rule: any, index: number) => {
+      console.log(`[FileActions] Rule ${index} MarketAverage before preparation:`, rule.MarketAverage);
+    });
     
     const completeData = {
       UpdateStrategies: dataToDownload,
@@ -131,8 +141,8 @@ const FileActions: React.FC<FileActionsProps> = ({ data, onDataLoad, onExtractJW
       }
     };
     
-    console.log("Final download data CustomRules MarketAverage values:", 
-      completeData.UpdateStrategies.CustomRules.map(r => r.MarketAverage));
+    console.log("[FileActions] Final download data CustomRules MarketAverage values:", 
+      completeData.UpdateStrategies.CustomRules.map((r: CustomRule, i: number) => `Rule ${i}: ${r.MarketAverage}`));
     
     const dataStr = JSON.stringify(completeData, null, 2);
     const blob = new Blob([dataStr], { type: 'application/json' });

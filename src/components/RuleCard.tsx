@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,24 +19,10 @@ const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate, onDelete, index }) 
   const [isEditing, setIsEditing] = useState(false);
   const [editedRule, setEditedRule] = useState<CustomRule>({ ...rule });
 
-  const validateRule = (ruleToValidate: any): CustomRule => {
-    let validatedRule = { ...ruleToValidate };
-    
-    if (validatedRule.MarketAverage !== 'Mean' && 
-        validatedRule.MarketAverage !== 'Median' && 
-        validatedRule.MarketAverage !== 'TrimmedMean') {
-      console.log(`Fixing invalid MarketAverage: ${validatedRule.MarketAverage}`);
-      validatedRule.MarketAverage = 'TrimmedMean';
-    }
-    
-    return validatedRule as CustomRule;
-  };
-
+  // Log the initial market average value when the component mounts
   useEffect(() => {
-    const validatedRule = validateRule(rule);
-    console.log(`RuleCard ${index} received rule with MarketAverage:`, rule.MarketAverage);
-    console.log(`RuleCard ${index} validated MarketAverage:`, validatedRule.MarketAverage);
-    setEditedRule(validatedRule);
+    console.log(`[RuleCard-${index}] Initial MarketAverage value:`, rule.MarketAverage);
+    setEditedRule({ ...rule });
   }, [rule, index]);
 
   const handleSave = () => {
@@ -44,36 +31,25 @@ const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate, onDelete, index }) 
       return;
     }
     
-    const validatedRule = validateRule(editedRule);
-    
-    console.log(`RuleCard ${index} saving with MarketAverage:`, validatedRule.MarketAverage);
-    
-    const ruleToSave = JSON.parse(JSON.stringify(validatedRule));
-    
-    onUpdate(ruleToSave);
+    console.log(`[RuleCard-${index}] Saving with MarketAverage:`, editedRule.MarketAverage);
+    onUpdate({ ...editedRule });
     setIsEditing(false);
     toast.success('Rule updated successfully');
   };
 
   const handleCancel = () => {
-    setEditedRule(validateRule(rule));
+    setEditedRule({ ...rule });
     setIsEditing(false);
   };
 
   const handleChange = (field: keyof CustomRule, value: any) => {
-    console.log(`RuleCard ${index}: Changing ${field} to:`, value);
-    
-    const updatedRule = { ...editedRule, [field]: value };
+    console.log(`[RuleCard-${index}] Changing ${field} to:`, value);
     
     if (field === 'MarketAverage') {
-      if (value !== 'Mean' && value !== 'Median' && value !== 'TrimmedMean') {
-        console.log(`Invalid MarketAverage value: ${value}, correcting to TrimmedMean`);
-        updatedRule.MarketAverage = 'TrimmedMean';
-      }
-      console.log(`RuleCard ${index}: MarketAverage explicitly changed to: ${updatedRule.MarketAverage}`);
+      console.log(`[RuleCard-${index}] MarketAverage before:`, editedRule.MarketAverage, "after:", value);
     }
     
-    setEditedRule(updatedRule);
+    setEditedRule(prev => ({ ...prev, [field]: value }));
   };
 
   return (
