@@ -143,11 +143,16 @@ const getPositionText = (position: number): string => {
   return `${position}th`;
 };
 
-export const createNewRule = (): CustomRule => ({
-  MinPriceRange: 0,
-  MaxPriceRange: 10,
-  PriceAdjustmentType: 'LowestPriceIndex',
-  LowestPriceIndex: 1,
-  MinAllowedPrice: 0.1,
-  MarketAverage: 'TrimmedMean' // This is just the default for brand new rules
-});
+export const createNewRule = (): CustomRule => {
+  const newRule: CustomRule = {
+    MinPriceRange: 0,
+    MaxPriceRange: 10,
+    PriceAdjustmentType: 'LowestPriceIndex',
+    LowestPriceIndex: 1,
+    MinAllowedPrice: 0.1,
+    MarketAverage: 'TrimmedMean'
+  };
+  
+  console.log("Created new rule with MarketAverage:", newRule.MarketAverage);
+  return newRule;
+};

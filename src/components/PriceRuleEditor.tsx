@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import RuleCard from './RuleCard';
 import StrategyCard from './StrategyCard';
@@ -25,15 +24,28 @@ const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave, 
     // Deep copy to avoid reference issues
     const initialDataCopy = JSON.parse(JSON.stringify(initialData));
     
-    // Only set MarketAverage if it's missing, don't override existing values
+    // Log the original MarketAverage values
+    console.log("Original CustomRules MarketAverage values:", 
+      initialDataCopy.CustomRules.map((rule: CustomRule) => rule.MarketAverage));
+    
+    // Only add MarketAverage if completely missing, never override existing values
     const validatedInitialData = {
       ...initialDataCopy,
-      CustomRules: initialDataCopy.CustomRules.map((rule: CustomRule) => ({
-        ...rule,
-        // Only use TrimmedMean as fallback if MarketAverage is completely missing
-        MarketAverage: rule.MarketAverage || 'TrimmedMean'
-      }))
+      CustomRules: initialDataCopy.CustomRules.map((rule: CustomRule) => {
+        // Only set a default if MarketAverage is explicitly undefined
+        if (rule.MarketAverage === undefined) {
+          console.log("Rule missing MarketAverage, setting default TrimmedMean");
+          return { ...rule, MarketAverage: 'TrimmedMean' };
+        }
+        // Otherwise preserve exactly what was there
+        return { ...rule };
+      })
     };
+    
+    // Log the validated MarketAverage values
+    console.log("Validated CustomRules MarketAverage values:", 
+      validatedInitialData.CustomRules.map((rule: CustomRule) => rule.MarketAverage));
+      
     return validatedInitialData;
   });
   
@@ -49,6 +61,8 @@ const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave, 
 
   const handleAddRule = () => {
     const newRule = createNewRule();
+    console.log("New rule created with MarketAverage:", newRule.MarketAverage);
+    
     setData(prev => ({
       ...prev,
       CustomRules: [...prev.CustomRules, newRule]
@@ -57,11 +71,17 @@ const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave, 
   };
 
   useEffect(() => {
-    if (data.CustomRules.some(rule => !rule.MarketAverage)) {
-      const updatedRules = data.CustomRules.map(rule => ({
-        ...rule,
-        MarketAverage: rule.MarketAverage || 'TrimmedMean'
-      }));
+    // This effect only adds MarketAverage if it's completely missing (undefined)
+    const needsFix = data.CustomRules.some(rule => rule.MarketAverage === undefined);
+    
+    if (needsFix) {
+      console.log("Found rules with missing MarketAverage, fixing them");
+      const updatedRules = data.CustomRules.map(rule => {
+        if (rule.MarketAverage === undefined) {
+          return { ...rule, MarketAverage: 'TrimmedMean' };
+        }
+        return rule;
+      });
       
       setData(prev => ({
         ...prev,
@@ -73,9 +93,17 @@ const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave, 
   }, [data.CustomRules]);
 
   const handleUpdateRule = (index: number, updatedRule: CustomRule) => {
+    // Create a deep copy of the rules to avoid reference issues
     const newRules = JSON.parse(JSON.stringify(data.CustomRules));
-    // Preserve the exact MarketAverage that was selected
+    
+    // Important: Log the MarketAverage before and after update
+    console.log(`Rule ${index} before update, MarketAverage:`, newRules[index].MarketAverage);
+    console.log(`Rule ${index} being updated with MarketAverage:`, updatedRule.MarketAverage);
+    
+    // Directly assign the updated rule, preserving all its properties including MarketAverage
     newRules[index] = updatedRule;
+    
+    console.log(`Rule ${index} after update, MarketAverage:`, newRules[index].MarketAverage);
     
     setData(prev => ({
       ...prev,
@@ -130,10 +158,10 @@ const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave, 
     // Create a deep copy to avoid reference issues
     const dataToSave = JSON.parse(JSON.stringify(data));
     
-    // Add logging to verify the MarketAverage values before saving
-    console.log("Saving data with original MarketAverage values:", 
-      dataToSave.CustomRules.map(r => r.MarketAverage));
-      
+    // Log each rule's MarketAverage value before saving
+    console.log("Saving data with MarketAverage values:", 
+      dataToSave.CustomRules.map((r, i) => `Rule ${i}: ${r.MarketAverage}`));
+    
     onSave(dataToSave);
     setIsConfirmDialogOpen(false);
     toast.success('Settings saved successfully', {

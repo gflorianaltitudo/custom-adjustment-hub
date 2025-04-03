@@ -19,10 +19,11 @@ const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate, onDelete, index }) 
   const [isEditing, setIsEditing] = useState(false);
   const [editedRule, setEditedRule] = useState<CustomRule>({ ...rule });
 
-  // Update the editedRule when the prop changes
+  // Update the editedRule when the prop changes, and log MarketAverage
   useEffect(() => {
+    console.log(`RuleCard ${index} received rule with MarketAverage:`, rule.MarketAverage);
     setEditedRule({ ...rule });
-  }, [rule]);
+  }, [rule, index]);
 
   const handleSave = () => {
     if (editedRule.MinPriceRange >= editedRule.MaxPriceRange) {
@@ -31,8 +32,12 @@ const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate, onDelete, index }) 
     }
     
     // Log the MarketAverage value before saving
-    console.log('Saving rule with MarketAverage:', editedRule.MarketAverage);
-    onUpdate(editedRule);
+    console.log(`RuleCard ${index} saving with MarketAverage:`, editedRule.MarketAverage);
+    
+    // Create a deep copy to avoid reference issues
+    const ruleToSave = JSON.parse(JSON.stringify(editedRule));
+    
+    onUpdate(ruleToSave);
     setIsEditing(false);
     toast.success('Rule updated successfully');
   };
@@ -43,12 +48,15 @@ const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate, onDelete, index }) 
   };
 
   const handleChange = (field: keyof CustomRule, value: any) => {
-    console.log(`Changing ${field} to:`, value);
-    setEditedRule(prev => ({ ...prev, [field]: value }));
+    console.log(`RuleCard ${index}: Changing ${field} to:`, value);
+    
+    // Create a new object to avoid reference issues
+    const updatedRule = { ...editedRule, [field]: value };
+    setEditedRule(updatedRule);
     
     // Additional log when changing MarketAverage specifically
     if (field === 'MarketAverage') {
-      console.log(`MarketAverage changed to: ${value}`);
+      console.log(`RuleCard ${index}: MarketAverage explicitly changed to: ${value}`);
     }
   };
 
@@ -176,7 +184,7 @@ const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate, onDelete, index }) 
                 </label>
                 <Select
                   disabled={!isEditing}
-                  value={editedRule.MarketAverage || 'TrimmedMean'}
+                  value={editedRule.MarketAverage}
                   onValueChange={(value) => handleChange('MarketAverage', value)}
                 >
                   <SelectTrigger className="h-10">
