@@ -21,9 +21,11 @@ interface PriceRuleEditorProps {
 
 const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave, jwtToken, onJWTUpdate }) => {
   const [data, setData] = useState<UpdateStrategies>(() => {
+    const initialDataCopy = JSON.parse(JSON.stringify(initialData));
+    
     const validatedInitialData = {
-      ...initialData,
-      CustomRules: initialData.CustomRules.map(rule => ({
+      ...initialDataCopy,
+      CustomRules: initialDataCopy.CustomRules.map((rule: CustomRule) => ({
         ...rule,
         MarketAverage: rule.MarketAverage || 'TrimmedMean'
       }))
@@ -67,8 +69,11 @@ const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave, 
   }, [data.CustomRules]);
 
   const handleUpdateRule = (index: number, updatedRule: CustomRule) => {
-    const newRules = [...data.CustomRules];
-    newRules[index] = updatedRule;
+    const newRules = JSON.parse(JSON.stringify(data.CustomRules));
+    newRules[index] = {
+      ...updatedRule,
+      MarketAverage: updatedRule.MarketAverage
+    };
     
     setData(prev => ({
       ...prev,
@@ -120,8 +125,9 @@ const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave, 
   };
 
   const handleSave = () => {
-    console.log("Saving data with original MarketAverage values:", data);
-    onSave(data);
+    const dataToSave = JSON.parse(JSON.stringify(data));
+    console.log("Saving data with original MarketAverage values:", dataToSave);
+    onSave(dataToSave);
     setIsConfirmDialogOpen(false);
     toast.success('Settings saved successfully', {
       description: 'Your price adjustment rules have been updated.'

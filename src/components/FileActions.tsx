@@ -18,7 +18,7 @@ const FileActions: React.FC<FileActionsProps> = ({ data, onDataLoad, onExtractJW
   };
 
   const normalizeCustomRule = (rule: any): CustomRule => {
-    const marketAverage = (rule.MarketAverage || rule.marketAverage || 'TrimmedMean') as 'Mean' | 'Median' | 'TrimmedMean';
+    const marketAverage = (rule.MarketAverage || rule.marketAverage) as 'Mean' | 'Median' | 'TrimmedMean';
     console.log("Preserving original MarketAverage:", marketAverage);
     
     const normalizedRule: CustomRule = {
@@ -104,8 +104,19 @@ const FileActions: React.FC<FileActionsProps> = ({ data, onDataLoad, onExtractJW
     const jwtTokenElement = document.getElementById('jwt-token') as HTMLInputElement;
     const jwtToken = jwtTokenElement ? jwtTokenElement.value : "";
     
+    const dataToDownload = JSON.parse(JSON.stringify(data));
+    
+    if (dataToDownload.CustomRules && Array.isArray(dataToDownload.CustomRules)) {
+      dataToDownload.CustomRules = dataToDownload.CustomRules.map(rule => {
+        return {
+          ...rule,
+          MarketAverage: rule.MarketAverage || 'TrimmedMean'
+        };
+      });
+    }
+    
     const completeData = {
-      UpdateStrategies: data,
+      UpdateStrategies: dataToDownload,
       ApiSettings: {
         CardTrader: {
           JWTToken: jwtToken

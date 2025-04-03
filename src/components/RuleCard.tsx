@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,7 +30,7 @@ const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate, onDelete, index }) 
       return;
     }
     
-    // Don't modify the MarketAverage value if it's already set
+    // Explicitly preserve the MarketAverage value
     console.log('Saving rule with MarketAverage:', editedRule.MarketAverage);
     onUpdate(editedRule);
     setIsEditing(false);
