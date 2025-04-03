@@ -30,7 +30,7 @@ const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate, onDelete, index }) 
       return;
     }
     
-    // Explicitly preserve the MarketAverage value
+    // Log the MarketAverage value before saving
     console.log('Saving rule with MarketAverage:', editedRule.MarketAverage);
     onUpdate(editedRule);
     setIsEditing(false);
@@ -45,6 +45,11 @@ const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate, onDelete, index }) 
   const handleChange = (field: keyof CustomRule, value: any) => {
     console.log(`Changing ${field} to:`, value);
     setEditedRule(prev => ({ ...prev, [field]: value }));
+    
+    // Additional log when changing MarketAverage specifically
+    if (field === 'MarketAverage') {
+      console.log(`MarketAverage changed to: ${value}`);
+    }
   };
 
   return (

@@ -1,3 +1,4 @@
+
 import React, { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Upload, Download, FileText } from 'lucide-react';
@@ -18,6 +19,7 @@ const FileActions: React.FC<FileActionsProps> = ({ data, onDataLoad, onExtractJW
   };
 
   const normalizeCustomRule = (rule: any): CustomRule => {
+    // Ensure we preserve the original MarketAverage value
     const marketAverage = (rule.MarketAverage || rule.marketAverage) as 'Mean' | 'Median' | 'TrimmedMean';
     console.log("Preserving original MarketAverage:", marketAverage);
     
@@ -104,15 +106,16 @@ const FileActions: React.FC<FileActionsProps> = ({ data, onDataLoad, onExtractJW
     const jwtTokenElement = document.getElementById('jwt-token') as HTMLInputElement;
     const jwtToken = jwtTokenElement ? jwtTokenElement.value : "";
     
+    // Create a deep copy of the data to avoid reference issues
     const dataToDownload = JSON.parse(JSON.stringify(data));
     
+    // Ensure we're not overriding MarketAverage values in CustomRules
     if (dataToDownload.CustomRules && Array.isArray(dataToDownload.CustomRules)) {
-      dataToDownload.CustomRules = dataToDownload.CustomRules.map(rule => {
-        return {
-          ...rule,
-          MarketAverage: rule.MarketAverage || 'TrimmedMean'
-        };
-      });
+      // Remove this line as it's forcing MarketAverage to TrimmedMean when undefined
+      // instead rely on the values that are already in the data object
+      dataToDownload.CustomRules = dataToDownload.CustomRules.map(rule => ({
+        ...rule
+      }));
     }
     
     const completeData = {

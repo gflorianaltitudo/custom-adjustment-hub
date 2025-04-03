@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import RuleCard from './RuleCard';
 import StrategyCard from './StrategyCard';
@@ -21,12 +22,15 @@ interface PriceRuleEditorProps {
 
 const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave, jwtToken, onJWTUpdate }) => {
   const [data, setData] = useState<UpdateStrategies>(() => {
+    // Deep copy to avoid reference issues
     const initialDataCopy = JSON.parse(JSON.stringify(initialData));
     
+    // Only set MarketAverage if it's missing, don't override existing values
     const validatedInitialData = {
       ...initialDataCopy,
       CustomRules: initialDataCopy.CustomRules.map((rule: CustomRule) => ({
         ...rule,
+        // Only use TrimmedMean as fallback if MarketAverage is completely missing
         MarketAverage: rule.MarketAverage || 'TrimmedMean'
       }))
     };
@@ -70,10 +74,8 @@ const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave, 
 
   const handleUpdateRule = (index: number, updatedRule: CustomRule) => {
     const newRules = JSON.parse(JSON.stringify(data.CustomRules));
-    newRules[index] = {
-      ...updatedRule,
-      MarketAverage: updatedRule.MarketAverage
-    };
+    // Preserve the exact MarketAverage that was selected
+    newRules[index] = updatedRule;
     
     setData(prev => ({
       ...prev,
@@ -125,8 +127,13 @@ const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave, 
   };
 
   const handleSave = () => {
+    // Create a deep copy to avoid reference issues
     const dataToSave = JSON.parse(JSON.stringify(data));
-    console.log("Saving data with original MarketAverage values:", dataToSave);
+    
+    // Add logging to verify the MarketAverage values before saving
+    console.log("Saving data with original MarketAverage values:", 
+      dataToSave.CustomRules.map(r => r.MarketAverage));
+      
     onSave(dataToSave);
     setIsConfirmDialogOpen(false);
     toast.success('Settings saved successfully', {
