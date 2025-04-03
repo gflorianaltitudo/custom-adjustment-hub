@@ -28,17 +28,21 @@ const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave, 
     console.log("Original CustomRules MarketAverage values:", 
       initialDataCopy.CustomRules.map((rule: CustomRule) => rule.MarketAverage));
     
-    // Only add MarketAverage if completely missing, never override existing values
+    // Ensure MarketAverage is a valid value from the union type
     const validatedInitialData = {
       ...initialDataCopy,
-      CustomRules: initialDataCopy.CustomRules.map((rule: CustomRule) => {
-        // Only set a default if MarketAverage is explicitly undefined
-        if (rule.MarketAverage === undefined) {
-          console.log("Rule missing MarketAverage, setting default TrimmedMean");
-          return { ...rule, MarketAverage: 'TrimmedMean' };
+      CustomRules: initialDataCopy.CustomRules.map((rule: any) => {
+        // Make sure MarketAverage is one of the allowed values
+        let marketAverage: 'Mean' | 'Median' | 'TrimmedMean' = 'TrimmedMean';
+        
+        if (rule.MarketAverage === 'Mean' || rule.MarketAverage === 'Median' || rule.MarketAverage === 'TrimmedMean') {
+          marketAverage = rule.MarketAverage;
         }
-        // Otherwise preserve exactly what was there
-        return { ...rule };
+        
+        return { 
+          ...rule, 
+          MarketAverage: marketAverage
+        };
       })
     };
     
@@ -71,16 +75,23 @@ const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave, 
   };
 
   useEffect(() => {
-    // This effect only adds MarketAverage if it's completely missing (undefined)
-    const needsFix = data.CustomRules.some(rule => rule.MarketAverage === undefined);
+    // This effect ensures all rules have a valid MarketAverage value
+    const needsFix = data.CustomRules.some(rule => 
+      rule.MarketAverage !== 'Mean' && 
+      rule.MarketAverage !== 'Median' && 
+      rule.MarketAverage !== 'TrimmedMean'
+    );
     
     if (needsFix) {
-      console.log("Found rules with missing MarketAverage, fixing them");
+      console.log("Found rules with invalid MarketAverage, fixing them");
       const updatedRules = data.CustomRules.map(rule => {
-        if (rule.MarketAverage === undefined) {
-          return { ...rule, MarketAverage: 'TrimmedMean' };
+        let marketAverage: 'Mean' | 'Median' | 'TrimmedMean' = 'TrimmedMean';
+        
+        if (rule.MarketAverage === 'Mean' || rule.MarketAverage === 'Median' || rule.MarketAverage === 'TrimmedMean') {
+          marketAverage = rule.MarketAverage;
         }
-        return rule;
+        
+        return { ...rule, MarketAverage: marketAverage };
       });
       
       setData(prev => ({
@@ -88,7 +99,7 @@ const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave, 
         CustomRules: updatedRules
       }));
       
-      console.log("Fixed missing MarketAverage values in rules");
+      console.log("Fixed invalid MarketAverage values in rules");
     }
   }, [data.CustomRules]);
 
@@ -100,8 +111,17 @@ const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave, 
     console.log(`Rule ${index} before update, MarketAverage:`, newRules[index].MarketAverage);
     console.log(`Rule ${index} being updated with MarketAverage:`, updatedRule.MarketAverage);
     
-    // Directly assign the updated rule, preserving all its properties including MarketAverage
-    newRules[index] = updatedRule;
+    // Ensure MarketAverage is a valid union type value
+    let marketAverage: 'Mean' | 'Median' | 'TrimmedMean' = 'TrimmedMean';
+    if (updatedRule.MarketAverage === 'Mean' || updatedRule.MarketAverage === 'Median' || updatedRule.MarketAverage === 'TrimmedMean') {
+      marketAverage = updatedRule.MarketAverage;
+    }
+    
+    // Create a new rule object with the validated MarketAverage
+    newRules[index] = {
+      ...updatedRule,
+      MarketAverage: marketAverage
+    };
     
     console.log(`Rule ${index} after update, MarketAverage:`, newRules[index].MarketAverage);
     
@@ -160,7 +180,7 @@ const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave, 
     
     // Log each rule's MarketAverage value before saving
     console.log("Saving data with MarketAverage values:", 
-      dataToSave.CustomRules.map((r, i) => `Rule ${i}: ${r.MarketAverage}`));
+      dataToSave.CustomRules.map((r: CustomRule, i: number) => `Rule ${i}: ${r.MarketAverage}`));
     
     onSave(dataToSave);
     setIsConfirmDialogOpen(false);

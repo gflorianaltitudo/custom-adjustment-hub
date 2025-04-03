@@ -1,3 +1,4 @@
+
 export interface CustomRule {
   MinPriceRange: number;
   MaxPriceRange: number;
@@ -15,7 +16,7 @@ export interface Strategy {
   MaxRetries: number;
   RetryDelaySeconds: number;
   LowestPriceIndex?: number;
-  MarketAverage: string;
+  MarketAverage: 'Mean' | 'Median' | 'TrimmedMean';
   PercentageAdjustment: number;
   FixedAdjustment: number;
 }

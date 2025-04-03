@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,10 +18,24 @@ const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate, onDelete, index }) 
   const [isEditing, setIsEditing] = useState(false);
   const [editedRule, setEditedRule] = useState<CustomRule>({ ...rule });
 
-  // Update the editedRule when the prop changes, and log MarketAverage
+  const validateRule = (ruleToValidate: any): CustomRule => {
+    let validatedRule = { ...ruleToValidate };
+    
+    if (validatedRule.MarketAverage !== 'Mean' && 
+        validatedRule.MarketAverage !== 'Median' && 
+        validatedRule.MarketAverage !== 'TrimmedMean') {
+      console.log(`Fixing invalid MarketAverage: ${validatedRule.MarketAverage}`);
+      validatedRule.MarketAverage = 'TrimmedMean';
+    }
+    
+    return validatedRule as CustomRule;
+  };
+
   useEffect(() => {
+    const validatedRule = validateRule(rule);
     console.log(`RuleCard ${index} received rule with MarketAverage:`, rule.MarketAverage);
-    setEditedRule({ ...rule });
+    console.log(`RuleCard ${index} validated MarketAverage:`, validatedRule.MarketAverage);
+    setEditedRule(validatedRule);
   }, [rule, index]);
 
   const handleSave = () => {
@@ -31,11 +44,11 @@ const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate, onDelete, index }) 
       return;
     }
     
-    // Log the MarketAverage value before saving
-    console.log(`RuleCard ${index} saving with MarketAverage:`, editedRule.MarketAverage);
+    const validatedRule = validateRule(editedRule);
     
-    // Create a deep copy to avoid reference issues
-    const ruleToSave = JSON.parse(JSON.stringify(editedRule));
+    console.log(`RuleCard ${index} saving with MarketAverage:`, validatedRule.MarketAverage);
+    
+    const ruleToSave = JSON.parse(JSON.stringify(validatedRule));
     
     onUpdate(ruleToSave);
     setIsEditing(false);
@@ -43,21 +56,24 @@ const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate, onDelete, index }) 
   };
 
   const handleCancel = () => {
-    setEditedRule({ ...rule });
+    setEditedRule(validateRule(rule));
     setIsEditing(false);
   };
 
   const handleChange = (field: keyof CustomRule, value: any) => {
     console.log(`RuleCard ${index}: Changing ${field} to:`, value);
     
-    // Create a new object to avoid reference issues
     const updatedRule = { ...editedRule, [field]: value };
-    setEditedRule(updatedRule);
     
-    // Additional log when changing MarketAverage specifically
     if (field === 'MarketAverage') {
-      console.log(`RuleCard ${index}: MarketAverage explicitly changed to: ${value}`);
+      if (value !== 'Mean' && value !== 'Median' && value !== 'TrimmedMean') {
+        console.log(`Invalid MarketAverage value: ${value}, correcting to TrimmedMean`);
+        updatedRule.MarketAverage = 'TrimmedMean';
+      }
+      console.log(`RuleCard ${index}: MarketAverage explicitly changed to: ${updatedRule.MarketAverage}`);
     }
+    
+    setEditedRule(updatedRule);
   };
 
   return (
@@ -185,7 +201,11 @@ const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate, onDelete, index }) 
                 <Select
                   disabled={!isEditing}
                   value={editedRule.MarketAverage}
-                  onValueChange={(value) => handleChange('MarketAverage', value)}
+                  onValueChange={(value) => {
+                    if (value === 'Mean' || value === 'Median' || value === 'TrimmedMean') {
+                      handleChange('MarketAverage', value);
+                    }
+                  }}
                 >
                   <SelectTrigger className="h-10">
                     <SelectValue placeholder="Select market average method" />
