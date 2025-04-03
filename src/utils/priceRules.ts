@@ -1,4 +1,3 @@
-
 export interface CustomRule {
   MinPriceRange: number;
   MaxPriceRange: number;
@@ -150,5 +149,5 @@ export const createNewRule = (): CustomRule => ({
   PriceAdjustmentType: 'LowestPriceIndex',
   LowestPriceIndex: 1,
   MinAllowedPrice: 0.1,
-  MarketAverage: 'TrimmedMean' // Default value
+  MarketAverage: 'TrimmedMean' // Default value only for new rules
 });

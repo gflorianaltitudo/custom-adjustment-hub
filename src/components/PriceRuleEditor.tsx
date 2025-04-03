@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import RuleCard from './RuleCard';
 import StrategyCard from './StrategyCard';
@@ -21,9 +20,7 @@ interface PriceRuleEditorProps {
 }
 
 const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave, jwtToken, onJWTUpdate }) => {
-  // Initialize with deep copy to avoid direct mutations of initialData
   const [data, setData] = useState<UpdateStrategies>(() => {
-    // Ensure all custom rules have a MarketAverage value on initial load
     const validatedInitialData = {
       ...initialData,
       CustomRules: initialData.CustomRules.map(rule => ({
@@ -53,7 +50,6 @@ const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave, 
     toast.success('New rule added');
   };
 
-  // Ensure MarketAverage is consistently set
   useEffect(() => {
     if (data.CustomRules.some(rule => !rule.MarketAverage)) {
       const updatedRules = data.CustomRules.map(rule => ({
@@ -71,16 +67,8 @@ const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave, 
   }, [data.CustomRules]);
 
   const handleUpdateRule = (index: number, updatedRule: CustomRule) => {
-    // Ensure MarketAverage is explicitly set before updating
-    const validatedRule = {
-      ...updatedRule,
-      MarketAverage: updatedRule.MarketAverage || 'TrimmedMean'
-    };
-    
-    console.log("Updating rule at index", index, "with MarketAverage:", validatedRule.MarketAverage);
-    
     const newRules = [...data.CustomRules];
-    newRules[index] = validatedRule;
+    newRules[index] = updatedRule;
     
     setData(prev => ({
       ...prev,
@@ -132,19 +120,8 @@ const PriceRuleEditor: React.FC<PriceRuleEditorProps> = ({ initialData, onSave, 
   };
 
   const handleSave = () => {
-    // Important - we'll save the data as is, without forcing TrimmedMean
-    // We just need to make sure there's a value where it's missing
-    const validatedData = {
-      ...data,
-      CustomRules: data.CustomRules.map(rule => ({
-        ...rule,
-        // Only set TrimmedMean if MarketAverage is completely missing
-        MarketAverage: rule.MarketAverage || 'TrimmedMean'
-      }))
-    };
-    
-    console.log("Saving data with MarketAverage values preserved:", validatedData);
-    onSave(validatedData);
+    console.log("Saving data with original MarketAverage values:", data);
+    onSave(data);
     setIsConfirmDialogOpen(false);
     toast.success('Settings saved successfully', {
       description: 'Your price adjustment rules have been updated.'

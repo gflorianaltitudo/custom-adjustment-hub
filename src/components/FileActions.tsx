@@ -1,4 +1,3 @@
-
 import React, { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Upload, Download, FileText } from 'lucide-react';
@@ -18,11 +17,9 @@ const FileActions: React.FC<FileActionsProps> = ({ data, onDataLoad, onExtractJW
     fileInputRef.current?.click();
   };
 
-  // Normalize property names from camelCase to PascalCase if needed
   const normalizeCustomRule = (rule: any): CustomRule => {
-    // Preserve the original MarketAverage value if present, or use camelCase version, or default
     const marketAverage = (rule.MarketAverage || rule.marketAverage || 'TrimmedMean') as 'Mean' | 'Median' | 'TrimmedMean';
-    console.log("Normalizing MarketAverage:", marketAverage);
+    console.log("Preserving original MarketAverage:", marketAverage);
     
     const normalizedRule: CustomRule = {
       MinPriceRange: rule.MinPriceRange ?? rule.minPriceRange ?? 0,
@@ -35,8 +32,6 @@ const FileActions: React.FC<FileActionsProps> = ({ data, onDataLoad, onExtractJW
       TrimFraction: rule.TrimFraction ?? rule.trimFraction,
       MarketAverage: marketAverage
     };
-    
-    console.log("Normalized rule with MarketAverage:", normalizedRule.MarketAverage);
     
     return normalizedRule;
   };
@@ -51,33 +46,24 @@ const FileActions: React.FC<FileActionsProps> = ({ data, onDataLoad, onExtractJW
         const content = e.target?.result as string;
         const jsonData = JSON.parse(content);
         
-        // Handle different file structures:
-        // 1. Complex structure: { "UpdateStrategies": { ... }, "ApiSettings": { ... }, ... }
-        // 2. Simple structure: { "UpdateStrategies": { ... } }
-        // 3. Direct structure: { ... } (just the UpdateStrategies content)
         let parsedData: UpdateStrategies;
         
         if (jsonData.UpdateStrategies) {
-          // Either complex or simple structure with UpdateStrategies key
           parsedData = jsonData.UpdateStrategies;
           
-          // Extract JWT token if available and callback is provided
           if (onExtractJWT && jsonData.ApiSettings?.CardTrader?.JWTToken) {
             onExtractJWT(jsonData.ApiSettings.CardTrader.JWTToken);
           }
         } else if (jsonData.UseCustomRules !== undefined && jsonData.CustomRules) {
-          // Direct structure (contains UpdateStrategies properties directly)
           parsedData = jsonData;
         } else {
           throw new Error('No UpdateStrategies found in file');
         }
         
-        // Basic validation to ensure it's an UpdateStrategies object
         if (!parsedData.CustomRules || !Array.isArray(parsedData.CustomRules)) {
           throw new Error('Invalid file format: CustomRules missing or not an array');
         }
         
-        // Normalize custom rules to handle camelCase vs PascalCase properties
         parsedData.CustomRules = parsedData.CustomRules.map(normalizeCustomRule);
         
         onDataLoad(parsedData);
@@ -94,12 +80,10 @@ const FileActions: React.FC<FileActionsProps> = ({ data, onDataLoad, onExtractJW
 
     reader.readAsText(file);
     
-    // Reset the input to allow opening the same file again
     event.target.value = '';
   };
 
   const handleCreateNew = () => {
-    // Start with minimal structure when creating a new file
     const minimalConfig: UpdateStrategies = {
       UseCustomRules: true,
       PriceAdjustmentStrategy: "Moderate",
@@ -117,15 +101,11 @@ const FileActions: React.FC<FileActionsProps> = ({ data, onDataLoad, onExtractJW
   };
 
   const handleDownload = () => {
-    // Get the current JWT token by looking for the element in the DOM
     const jwtTokenElement = document.getElementById('jwt-token') as HTMLInputElement;
     const jwtToken = jwtTokenElement ? jwtTokenElement.value : "";
     
-    // Create a file with the same complex structure, but only with our UpdateStrategies data
-    // This preserves the overall structure while updating only our part
     const completeData = {
       UpdateStrategies: data,
-      // Include ApiSettings with the JWT token
       ApiSettings: {
         CardTrader: {
           JWTToken: jwtToken
@@ -148,7 +128,6 @@ const FileActions: React.FC<FileActionsProps> = ({ data, onDataLoad, onExtractJW
     document.body.appendChild(link);
     link.click();
     
-    // Clean up
     setTimeout(() => {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);

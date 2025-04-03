@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,19 +18,10 @@ const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate, onDelete, index }) 
   const [isEditing, setIsEditing] = useState(false);
   const [editedRule, setEditedRule] = useState<CustomRule>({ ...rule });
 
-  // Ensure MarketAverage always has a value when component mounts or rule changes
+  // Update the editedRule when the prop changes
   useEffect(() => {
-    if (!rule.MarketAverage) {
-      const updatedRule = { ...rule, MarketAverage: 'TrimmedMean' as const };
-      console.log("Setting default MarketAverage in rule:", updatedRule);
-      onUpdate(updatedRule);
-    }
-    
-    setEditedRule(prev => ({
-      ...prev,
-      MarketAverage: rule.MarketAverage || 'TrimmedMean'
-    }));
-  }, [rule, onUpdate]);
+    setEditedRule({ ...rule });
+  }, [rule]);
 
   const handleSave = () => {
     if (editedRule.MinPriceRange >= editedRule.MaxPriceRange) {
@@ -39,14 +29,9 @@ const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate, onDelete, index }) 
       return;
     }
     
-    // Explicitly ensure MarketAverage is set before saving but preserve the selected value
-    const finalRule = {
-      ...editedRule,
-      MarketAverage: editedRule.MarketAverage || 'TrimmedMean'
-    };
-    
-    console.log('Saving rule with MarketAverage:', finalRule.MarketAverage);
-    onUpdate(finalRule);
+    // Don't modify the MarketAverage value if it's already set
+    console.log('Saving rule with MarketAverage:', editedRule.MarketAverage);
+    onUpdate(editedRule);
     setIsEditing(false);
     toast.success('Rule updated successfully');
   };
